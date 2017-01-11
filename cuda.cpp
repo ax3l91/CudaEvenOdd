@@ -1,5 +1,9 @@
+#include "cuda_runtime.h"
+#include "device_launch_parameters.h"
+#include <iostream>
 #include <stdio.h>
 #include <device_functions.h>
+#include <cuda.h>
 
 int *cudaSort(int a[], const int arraySize)
 {

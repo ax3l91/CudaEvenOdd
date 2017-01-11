@@ -1,95 +1,42 @@
 #include <iostream>
-#include <random>
-#include <time.h>
-#include <chrono>
+
+#include "definitions.h"
+#include "ArrayClass.h"
+#include "timeutils.h"
 
 
-#include "kernel.cuh"
 
-
-void checkSort(int mat[]);
-
-int range;
-void printMatrix(int mat[]);
-
-template <typename T>
-void swap(T A[],int i) {
-	T temp = A[i];
-	A[i] = A[i+1];
-	A[i+1] = temp;
-};
-
-template <typename T>
-void evenodd_sort(T mat[]) {
-
-	for (int j = 0; j < range/2; j++) {
-		for (int i = 0; i < range; i += 2) {
-			if (mat[i] > mat[i + 1]) swap(mat, i);
-			//printMatrix(mat);
-		}
-		for (int i = 1; i < range-1; i += 2) {
-			if (mat[i] > mat[i + 1]) swap(mat, i);
-			//printMatrix(mat);
-		}
-	}
-};
+int range = 8;
+ArrayClass *matrix_ptr,*cuda_ptr,*cpu_ptr;
+int* cudaMat_ptr, *cpuMat_ptr;
 
 
 
 int main() {
-	int seed = time(0);
-	srand(seed);
-	int initial = 5000;
-
-	//dimension of the array
-	range = 50000;
-	auto matrix = new int[range];
-
-	for (int i = 0; i < range; i++) {
-		matrix[i] = rand()%1000;
-	}
+	matrix_ptr = new ArrayClass(range, true);
+	//(*matrix_ptr).printArray();
 	std::cout << "Random matrix generated:" << std::endl;
-	//printMatrix(matrix);
+	int* matrix = (*matrix_ptr).getArray();
 
 	//sort with cuda
-	std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-	auto cudaMatrix = cudaSort(matrix, range);
-	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-	std::cout << "Cuda completed in: " << std::chrono::duration_cast<std::chrono::milliseconds> (end - begin).count() <<" ms"<< std::endl;
-	//printMatrix(cudaMatrix);
-	checkSort(cudaMatrix);
+	startTiming();
+	(*matrix_ptr).sort(GPU, &cudaMat_ptr);
+	endTiming(true, "GPU");
 
 	//sort in cpu-sequential
-	std::chrono::steady_clock::time_point begin2 = std::chrono::steady_clock::now();
-	evenodd_sort(matrix);
-	std::chrono::steady_clock::time_point end2 = std::chrono::steady_clock::now();
-	std::cout << "CPU completed in: " << std::chrono::duration_cast<std::chrono::milliseconds> (end2 - begin2).count() << " ms" << std::endl;
-	//printMatrix(matrix);
-	checkSort(matrix);
+	startTiming();
+	(*matrix_ptr).sort(CPU, &cpuMat_ptr);
+	endTiming(true, "CPU");
+
+	cuda_ptr = new ArrayClass(cudaMat_ptr, range);
+	cuda_ptr->checkSort();
+	//(*cuda_ptr).printArray();
+	cpu_ptr = new ArrayClass(cpuMat_ptr, range);
+	cpu_ptr->checkSort();
+	//(*cpu_ptr).printArray();
 	
 
 	system("pause");
 	return 0;
 }
 
-
-void printMatrix(int mat[]) {
-	for (int i = 0; i < range; i++) {
-		std::cout << i << ":" << "[" << mat[i] << "]" << "  ";
-	}
-	std::cout << std::endl;
-}
-
-void checkSort(int mat[]) {
-	int error = 0;
-
-	for (int i = 0; i < range-1; i++) {
-		
-		if (mat[i] > mat[i + 1]) {
-			std::cout << "error in: " << i << "with values" << mat[i]<< "and" <<mat[i+1]<< std::endl;
-			error++;
-		}
-	}
-
-	std::cout << "check sort has found " << error << " errors in the matrix" << std::endl;
-}
