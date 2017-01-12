@@ -28,6 +28,7 @@ ArrayClass::ArrayClass(int *mat,int range) {
 }
 
 ArrayClass::~ArrayClass() {
+	delete[] mat;
 }
 
 void ArrayClass::printArray() {
@@ -122,18 +123,25 @@ void ArrayClass::swap(T A[], int i) {
 
 template <typename T>
 T* ArrayClass::evenodd_sort(T mat[]) {
-	auto c = new T[range];
+	T* matOut = new T[range];
 
-	for (int j = 0; j < range / 2; j++) {
+	for (int j = 0; j < (range/2) - 2; j++) {
 		for (int i = 0; i < range; i += 2) {
-			if (mat[i] > mat[i + 1]) swap(mat, i);
+			if (mat[i] > mat[i + 1]) {
+				//swap(mat, i);
+				matOut[i] = mat[i + 1];
+				matOut[i + 1] = mat[i];
+			}
 		}
-		for (int i = 1; i < range - 1; i += 2) {
-			if (mat[i] > mat[i + 1]) swap(mat, i);
+		for (int i = 1; i < range -1; i += 2) {
+			if (mat[i] > mat[i + 1]) {
+				//swap(mat, i);
+				matOut[i] = mat[i + 1];
+				matOut[i + 1] = mat[i];
+			}
 		}
 	}
-	c = mat;
-	return c;
+	return matOut;
 };
 
 int* ArrayClass::cudaSort(int a[], const int arraySize)
