@@ -21,7 +21,9 @@ public:
 	
 private:
 	template<typename T>
-	void swap(T A[], int i);
+	void swap(T in[],T out[], int i);
+	template<typename T>
+	void dontSwap(T in[], T out[], int i);
 	template<typename T>
 	T* evenodd_sort(T mat[]);
 	void printMatrix(int mat[], int range);

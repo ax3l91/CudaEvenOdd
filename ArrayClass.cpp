@@ -114,10 +114,14 @@ void ArrayClass::printMatrix(int mat[], int range) {
 }
 
 template <typename T>
-void ArrayClass::swap(T A[], int i) {
-	T temp = A[i];
-	A[i] = A[i + 1];
-	A[i + 1] = temp;
+void ArrayClass::swap(T in[],T out[], int i) {
+	out[i] = in[i + 1];
+	out[i + 1] = in[i];
+}
+template <typename T>
+void ArrayClass::dontSwap(T in[], T out[], int i) {
+	out[i] = in[i];
+	out[i + 1] = in[i + 1];
 }
 
 
@@ -125,20 +129,18 @@ template <typename T>
 T* ArrayClass::evenodd_sort(T mat[]) {
 	T* matOut = new T[range];
 
-	for (int j = 0; j < (range/2) - 2; j++) {
-		for (int i = 0; i < range; i += 2) {
+	for (int j = 0; j < range - 1; j++) {
+		for (int i = 0; i < range ; i += 2) {
 			if (mat[i] > mat[i + 1]) {
-				//swap(mat, i);
-				matOut[i] = mat[i + 1];
-				matOut[i + 1] = mat[i];
+				swap(mat, matOut, i);
 			}
+			else dontSwap(mat, matOut, i);
 		}
-		for (int i = 1; i < range -1; i += 2) {
+		for (int i = 1; i < range - 1; i += 2) {
 			if (mat[i] > mat[i + 1]) {
-				//swap(mat, i);
-				matOut[i] = mat[i + 1];
-				matOut[i + 1] = mat[i];
+				swap(mat, matOut, i);
 			}
+			else dontSwap(mat, matOut, i);
 		}
 	}
 	return matOut;
