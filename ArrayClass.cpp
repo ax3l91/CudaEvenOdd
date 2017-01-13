@@ -107,7 +107,7 @@ void ArrayClass::populateArray(int mat[], int range, bool random) {
 }
 
 void ArrayClass::matrixCpy(int in[], int out[]) {
-	for (int i = 0; i < range - 1; i++) {
+	for (int i = 0; i < range; i++) {
 		out[i] = in[i];
 	}
 }
@@ -133,10 +133,10 @@ T* ArrayClass::evenodd_sort(T mat[]) {
 	T* matOut = new T[range];
 	matrixCpy(mat, matOut);
 
-	for (int j = 0; j < range - 1; j++) {
+	for (int j = 0; j < range/2; j++) {
 		for (int i = 0; i < range ; i += 2) {
 			if (matOut[i] > matOut[i + 1]) {
-				swap(mat, i);
+				swap(matOut, i);
 			}
 		}
 		for (int i = 1; i < range - 1; i += 2) {
