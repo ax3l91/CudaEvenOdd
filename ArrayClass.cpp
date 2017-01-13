@@ -106,6 +106,12 @@ void ArrayClass::populateArray(int mat[], int range, bool random) {
 
 }
 
+void ArrayClass::matrixCpy(int in[], int out[]) {
+	for (int i = 0; i < range - 1; i++) {
+		out[i] = in[i];
+	}
+}
+
 void ArrayClass::printMatrix(int mat[], int range) {
 	for (int i = 0; i < range; i++) {
 		std::cout << i << ":" << "[" << mat[i] << "]" << "  ";
@@ -113,36 +119,33 @@ void ArrayClass::printMatrix(int mat[], int range) {
 	std::cout << std::endl;
 }
 
+
 template <typename T>
-void ArrayClass::swap(T in[],T out[], int i) {
-	out[i] = in[i + 1];
-	out[i + 1] = in[i];
-}
-template <typename T>
-void ArrayClass::dontSwap(T in[], T out[], int i) {
-	out[i] = in[i];
-	out[i + 1] = in[i + 1];
+void ArrayClass::swap(T mat[], int i) {
+	T temp = mat[i];
+	mat[i] = mat[i + 1];
+	mat[i + 1] = temp;
 }
 
 
 template <typename T>
 T* ArrayClass::evenodd_sort(T mat[]) {
 	T* matOut = new T[range];
+	matrixCpy(mat, matOut);
 
 	for (int j = 0; j < range - 1; j++) {
 		for (int i = 0; i < range ; i += 2) {
-			if (mat[i] > mat[i + 1]) {
-				swap(mat, matOut, i);
+			if (matOut[i] > matOut[i + 1]) {
+				swap(mat, i);
 			}
-			else dontSwap(mat, matOut, i);
 		}
 		for (int i = 1; i < range - 1; i += 2) {
-			if (mat[i] > mat[i + 1]) {
-				swap(mat, matOut, i);
+			if (matOut[i] > matOut[i + 1]) {
+				swap(matOut, i);
 			}
-			else dontSwap(mat, matOut, i);
 		}
 	}
+
 	return matOut;
 };
 

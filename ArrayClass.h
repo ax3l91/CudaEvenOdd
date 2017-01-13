@@ -21,13 +21,12 @@ public:
 	
 private:
 	template<typename T>
-	void swap(T in[],T out[], int i);
-	template<typename T>
-	void dontSwap(T in[], T out[], int i);
+	void swap(T mat[], int i);
 	template<typename T>
 	T* evenodd_sort(T mat[]);
 	void printMatrix(int mat[], int range);
 	void populateArray(int mat[], int range, bool random);
+	void matrixCpy(int in[], int out[]);
 	int* cudaSort(int mat[],const int range);
 	cudaError_t sortWithCuda(int *mat,unsigned int range);
 
