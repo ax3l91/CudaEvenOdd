@@ -15,7 +15,7 @@ char menu = 'a';
 int main() {
 	matrix_ptr = new ArrayClass(range, true);
 	
-	std::cout << "Random matrix generated:" << std::endl;
+	std::cout << "Random matrix generated..." << std::endl;
 	int* matrix = (*matrix_ptr).getArray();
 
 	//sort with cuda
