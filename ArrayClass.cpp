@@ -9,6 +9,7 @@
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
 #include "kernel.cuh"
+#include <thrust/sort.h>
 
 using namespace std;
 
@@ -83,6 +84,9 @@ void ArrayClass::sort(int TYPE, int **mat_ptr)
 	case CPU:
 		*mat_ptr = evenodd_sort(mat);
 		break;
+	case THRUST:
+		*mat_ptr = cudaSort(mat, range, true);
+		break;
 	default:
 		cout << "wrong type" << endl;
 		break;
@@ -130,6 +134,12 @@ void ArrayClass::swap(T mat[], int i) {
 
 template <typename T>
 T* ArrayClass::evenodd_sort(T mat[]) {
+	//How many cores the systems has
+	unsigned concurentThreadsSupported = std::thread::hardware_concurrency();
+
+	std::cout<<
+
+
 	T* matOut = new T[range];
 	matrixCpy(mat, matOut);
 
@@ -168,6 +178,18 @@ int* ArrayClass::cudaSort(int a[], const int arraySize)
 	}
 
 	return c;
+}
+
+
+int * ArrayClass::cudaSort(int mat[], const int range, bool useThrust)
+{
+	if (!useThrust)
+		return cudaSort(mat, range);
+	else
+	{
+		thrust::sort(mat, mat + range);
+	}
+	return nullptr;
 }
 
 

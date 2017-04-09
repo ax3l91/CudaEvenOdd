@@ -28,6 +28,7 @@ private:
 	void populateArray(int mat[], int range, bool random);
 	void matrixCpy(int in[], int out[]);
 	int* cudaSort(int mat[],const int range);
+	int* cudaSort(int mat[], const int range,bool useThrust);
 	cudaError_t sortWithCuda(int *mat,unsigned int range);
 
 

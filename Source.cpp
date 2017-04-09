@@ -5,9 +5,9 @@
 #include "timeutils.h"
 
 
-int range = 12;
+int range = 50000;
 ArrayClass *matrix_ptr,*cuda_ptr,*cpu_ptr;
-int* cudaMat_ptr, *cpuMat_ptr;
+int* cudaMat_ptr, *cpuMat_ptr,*thrustMat_ptr;
 char menu = 'a';
 
 
@@ -24,6 +24,12 @@ int main() {
 	(*matrix_ptr).sort(GPU, &cudaMat_ptr);
 	endTiming(true, "GPU");
 
+	//Sort with Thrust
+	std::cout << "Sorting with Thrust..." << std::endl;
+	startTiming();
+	(*matrix_ptr).sort(THRUST, &thrustMat_ptr);
+	endTiming(true, "Thrust");
+
 	//sort in cpu-sequential
 	std::cout << "Sorting with CPU..." << std::endl;
 	startTiming();
@@ -36,9 +42,9 @@ int main() {
 	cuda_ptr->checkSort("GPU");
 	cpu_ptr->checkSort("CPU");
 
-	(*matrix_ptr).printArray();
-	(*cuda_ptr).printArray();
-	(*cpu_ptr).printArray();
+	//(*matrix_ptr).printArray();
+	//(*cuda_ptr).printArray();
+	//(*cpu_ptr).printArray();
 	
 	std::cout << "Sortings completed. Check above for errors!" << std::endl;
 	
