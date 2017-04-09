@@ -5,7 +5,7 @@
 #include "timeutils.h"
 
 
-int range = 50000;
+int range = 4;
 ArrayClass *matrix_ptr,*cuda_ptr,*cpu_ptr;
 int* cudaMat_ptr, *cpuMat_ptr,*thrustMat_ptr;
 char menu = 'a';
@@ -15,23 +15,23 @@ char menu = 'a';
 int main() {
 	matrix_ptr = new ArrayClass(range, true);
 	
-	std::cout << "Random matrix generated..." << std::endl;
+	systemLog("Random matrix generated:");
 	int* matrix = (*matrix_ptr).getArray();
 
 	//sort with cuda
-	std::cout << "Sorting with CUDA..." << std::endl;
+	systemLog("Sorting with CUDA...");
 	startTiming();
 	(*matrix_ptr).sort(GPU, &cudaMat_ptr);
 	endTiming(true, "GPU");
 
 	//Sort with Thrust
-	std::cout << "Sorting with Thrust..." << std::endl;
+	systemLog("Sorting with THRUST...");
 	startTiming();
 	(*matrix_ptr).sort(THRUST, &thrustMat_ptr);
 	endTiming(true, "Thrust");
 
 	//sort in cpu-sequential
-	std::cout << "Sorting with CPU..." << std::endl;
+	systemLog("Sorting with CPU...");
 	startTiming();
 	(*matrix_ptr).sort(CPU, &cpuMat_ptr);
 	endTiming(true, "CPU");
@@ -46,10 +46,10 @@ int main() {
 	//(*cuda_ptr).printArray();
 	//(*cpu_ptr).printArray();
 	
-	std::cout << "Sortings completed. Check above for errors!" << std::endl;
+	systemLog("Sortings completed. Check above for errors!");
 	
 	while (menu != 'q') {
-		std::cout << "press q to exit and release memory" << std::endl;
+		systemLog("Press q to exit and release memory");
 		std::cin >> menu;
 	}
 

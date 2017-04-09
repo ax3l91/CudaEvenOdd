@@ -9,6 +9,7 @@ void startTiming();
 
 void endTiming(bool print,std::string str);
 void endTiming(bool print);
+void systemLog(std::string str);
 
 
 

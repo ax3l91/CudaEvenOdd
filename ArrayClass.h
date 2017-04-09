@@ -17,6 +17,7 @@ public:
 	void sort(int TYPE);
 	void sort(int TYPE, int **mat_ptr);
 	int* sort_ptr(int TYPE);
+	void task(unsigned int maxThreads, int threadId);
 
 	
 private:
@@ -39,3 +40,5 @@ private:
 
 
 #endif // !ARRAY_CLASS_H
+
+

@@ -24,3 +24,8 @@ void endTiming(bool print) {
 		std::cout << " completed in: " << std::chrono::duration_cast<std::chrono::milliseconds> (end - begin).count() << " ms" << std::endl;
 	}
 }
+
+
+void systemLog(std::string string) {
+	std::cout << string << std::endl;
+}

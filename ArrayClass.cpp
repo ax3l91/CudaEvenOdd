@@ -3,6 +3,8 @@
 #include <string>
 #include "ArrayClass.h"
 #include "definitions.h"
+#include "timeutils.h"
+#include <thread>
 
 //CUDA
 #include <device_functions.h>
@@ -131,13 +133,32 @@ void ArrayClass::swap(T mat[], int i) {
 	mat[i + 1] = temp;
 }
 
+void ArrayClass::task(unsigned int maxThreads,int threadId)
+{
+	while (threadId < maxThreads && threadId <range)
+	{
+		threadId++;
+	}
+}
+void thread1(unsigned int maxThreads ,int threadId,ArrayClass ac) {
+	systemLog("hello from thread "+ std::to_string(threadId));
+	ac.task(maxThreads, threadId);
+}
 
 template <typename T>
 T* ArrayClass::evenodd_sort(T mat[]) {
 	//How many cores the systems has
-	unsigned concurentThreadsSupported = std::thread::hardware_concurrency();
+	unsigned int concurentThreadsSupported = std::thread::hardware_concurrency();
+	std::string s = std::to_string(concurentThreadsSupported);
+	systemLog(s +" Threads in this system");
 
-	std::cout<<
+	//FAIL way. Needs something better.
+	//for (int itNum = 0; itNum < range / 2; itNum++) {
+	//	for (int threadId = 0; threadId < concurentThreadsSupported; threadId++) {
+	//		std::thread invokeThread (thread1, concurentThreadsSupported, threadId, *this);
+	//		invokeThread.join();
+	//	}
+	//}
 
 
 	T* matOut = new T[range];
