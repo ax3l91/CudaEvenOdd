@@ -3,7 +3,7 @@
 #include <string>
 #include "ArrayClass.h"
 #include "definitions.h"
-#include "timeutils.h"
+#include "Utils.h"
 #include <thread>
 
 //CUDA
@@ -78,6 +78,8 @@ int * ArrayClass::sort_ptr(int TYPE)
 
 void ArrayClass::sort(int TYPE, int **mat_ptr)
 {
+	/*Find out What kind of Sort to Run and return a Pointer to 
+	a new sorted Matrix*/
 	switch (TYPE)
 	{
 	case GPU:
@@ -106,7 +108,7 @@ void ArrayClass::populateArray(int mat[], int range, bool random) {
 		}
 		else
 		{
-			mat[i] = 0;
+			mat[range- i -1] = 2*i + 10;
 		}
 	}
 
@@ -153,17 +155,19 @@ T* ArrayClass::evenodd_sort(T mat[]) {
 	systemLog(s +" Threads in this system");
 
 	//FAIL way. Needs something better.
-	//for (int itNum = 0; itNum < range / 2; itNum++) {
-	//	for (int threadId = 0; threadId < concurentThreadsSupported; threadId++) {
-	//		std::thread invokeThread (thread1, concurentThreadsSupported, threadId, *this);
-	//		invokeThread.join();
-	//	}
-	//}
+	/*for (int itNum = 0; itNum < range / 2; itNum++) {
+		for (int threadId = 0; threadId < concurentThreadsSupported; threadId++) {
+			std::thread invokeThread (thread1, concurentThreadsSupported, threadId, *this);
+			invokeThread.join();
+		}
+	}
+	*/
 
 
 	T* matOut = new T[range];
 	matrixCpy(mat, matOut);
 
+	//Sequencial Single-Threaded sorting.
 	for (int j = 0; j < range/2; j++) {
 		for (int i = 0; i < range ; i += 2) {
 			if (matOut[i] > matOut[i + 1]) {
@@ -222,7 +226,8 @@ cudaError_t ArrayClass::sortWithCuda(int *c, unsigned int size)
 	cudaError_t cudaStatus;
 
 	// Choose which GPU to run on, change this on a multi-GPU system.
-	cudaStatus = cudaSetDevice(0);
+	short int GPUID = 0;
+	cudaStatus = cudaSetDevice(GPUID);
 	if (cudaStatus != cudaSuccess) {
 		fprintf(stderr, "cudaSetDevice failed!  Do you have a CUDA-capable GPU installed?");
 		goto Error;
@@ -234,7 +239,6 @@ cudaError_t ArrayClass::sortWithCuda(int *c, unsigned int size)
 		fprintf(stderr, "cudaMalloc failed!");
 		goto Error;
 	}
-
 
 	// Copy input vectors from host memory to GPU buffers.
 	cudaStatus = cudaMemcpy(dev_c, c, size * sizeof(int), cudaMemcpyHostToDevice);

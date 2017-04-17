@@ -2,10 +2,10 @@
 
 #include "definitions.h"
 #include "ArrayClass.h"
-#include "timeutils.h"
+#include "Utils.h"
 
 
-int range = 4;
+int range;
 ArrayClass *matrix_ptr,*cuda_ptr,*cpu_ptr;
 int* cudaMat_ptr, *cpuMat_ptr,*thrustMat_ptr;
 char menu = 'a';
@@ -13,6 +13,9 @@ char menu = 'a';
 
 
 int main() {
+	systemLog("Please input the range of a one Dimensional Matrix");
+	std::cin >> range;
+
 	matrix_ptr = new ArrayClass(range, true);
 	
 	systemLog("Random matrix generated:");

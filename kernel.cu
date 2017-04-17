@@ -1,4 +1,3 @@
-
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
 #include <device_functions.h>
@@ -11,6 +10,8 @@
 __global__ void sortKernel(int *c,int arraySize)
 {
 	
+	__shared__ int myArray[16];
+
 	int i = threadIdx.x + threadIdx.y*blockDim.x;
 	
 	if (i < arraySize) {
