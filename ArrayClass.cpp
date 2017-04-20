@@ -234,9 +234,19 @@ cudaError_t ArrayClass::sortWithCuda(int *c, unsigned int size)
 
 	// Launch a kernel on the GPU with one thread for each element.
 	//sortKernel<<<1, thread>>>(dev_c,size);
-	for (int i = 0; i < size / 2; i++) {
-		evenKernel(dev_c, size);
-		oddKernel(dev_c, size);
+	if (size % 2 == 0) {
+		for (int i = 0; i < size / 2; i++) {
+			evenKernel(dev_c, size);
+			oddKernel(dev_c, size);
+		}
+	}
+	else
+	{
+		printf("range is %d \n", size);
+		for (int i = 0; i < (int) floorf(size / 2) + 1; i++) {
+			oddKernel2(dev_c, size,false);
+			oddKernel2(dev_c, size, true);
+		}
 	}
 	endTiming(true, "Kernel Work ");
 
