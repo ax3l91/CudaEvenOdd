@@ -4,43 +4,68 @@
 #include <iostream>
 #include <stdio.h>
 
-#define threads 128
+#define THREADS 128
 
 
-__global__ void sortKernel(int *c,int arraySize)
+__global__ void sortKernel(int *c,int range)
 {
-	
-	__shared__ int myArray[16];
+	//Declare Shared Memory
+	__shared__ int sMat[THREADS];
 
-	int i = threadIdx.x + threadIdx.y*blockDim.x;
+	int i = threadIdx.x + blockIdx.x*blockDim.x;
+	printf("thread x:%d thread y:%d blockDim:%d*%d  equals id:%d c[%d] , sMat[%d] \n", threadIdx.x, threadIdx.y, blockDim.x, blockDim.y, i, c[i], sMat[threadIdx.x]);
 	
-	if (i < arraySize) {
-		printf("thread x:%d thread y:%d blockDim:%d*%d  equals id:%d \n", threadIdx.x,threadIdx.y,blockDim.x,blockDim.y,i);
-		//__syncthreads();
-		for (int it = 0; it < arraySize/2; it++) {
+	//Check that we dont fall outside of Array Values
+	if (i < range) {
 
+		//Copy the Matrix from Global to Shared Memory
+		//sMat[threadIdx.x] = c[i];
+
+		//sync all threads before continuing
+		__syncthreads();
+
+		//printf("thread x:%d thread y:%d blockDim:%d*%d  equals id:%d c[%d] , sMat[%d] \n", threadIdx.x,threadIdx.y,blockDim.x,blockDim.y,i,c[i],sMat[threadIdx.x]);
+
+		//Do range/2 iterations of even and then odd which equals to a total of range iterations until the Matrix is Sorted
+		for (int it = 0; it < range/2; it++) {
+			
+			//Do the Even Iteration only using the Shared Memory
 			if (i % 2 == 0) {
-
-				//if (i == 2) printf("thread with id:%d is oustide even %d %d %d \n", i,c[i-1],c[i],c[i+1]);
+				//printf("we have c[%d] = %d and sMat[%d] = %d\n",i,c[i], threadIdx.x,sMat[threadIdx.x]);
+				/*if (sMat[threadIdx.x] > sMat[threadIdx.x + 1]) {
+					printf("swapping c[%d] / sMat[%d]  and c[%d] / sMat[%d] \n", i,threadIdx.x,i + 1,threadIdx.x + 1);
+					int temp = sMat[threadIdx.x];
+					sMat[threadIdx.x] = sMat[threadIdx.x + 1];
+					sMat[threadIdx.x + 1] = temp;
+				}*/
 				if (c[i] > c[i + 1]) {
+					//printf("swapping c[%d] / sMat[%d]  and c[%d] / sMat[%d] \n", i, threadIdx.x, i + 1, threadIdx.x + 1);
 					int temp = c[i];
 					c[i] = c[i + 1];
 					c[i + 1] = temp;
 				}
-				
 			}
-			__syncthreads();
 
-			if (i % 2 != 0 && i <arraySize-1) {
+			//Sync and return from shared to global
+			__syncthreads();
+			//c[i] = sMat[threadIdx.x];
+
+			//Do the Odd Iteration
+			if (i % 2 != 0 && i < range-1) {
 				//if (i == 31) printf("thread with id:%d is oustide odd %d %d %d \n", i, c[i], c[i+1], c[i+2]);
+				//printf("we have c[%d] = %d and sMat[%d] = %d\n", i, c[i], threadIdx.x, sMat[threadIdx.x]);
 				if (c[i] > c[i + 1]) {
+					//printf("swapping c[%d] / sMat[%d]  and c[%d] / sMat[%d] \n", i, threadIdx.x, i + 1, threadIdx.x + 1);
 					int temp = c[i];
 					c[i] = c[i + 1];
 					c[i + 1] = temp;
 				}
 				
 			}
+
+			//Sync and return from global to shared
 			__syncthreads();
+			//sMat[threadIdx.x] = c[i];
 		}
 		__syncthreads();
 	}
@@ -48,7 +73,9 @@ __global__ void sortKernel(int *c,int arraySize)
 }
 
 
-
+void sharedKernel(int *c, int range) {
+	sortKernel << < (range + THREADS -1) / THREADS, THREADS >> > (c, range);
+}
 
 
 
@@ -68,7 +95,7 @@ __global__ void evenSort(int *c, int arraySize) {
 }
 void evenKernel(int * c, int range)
 {
-	evenSort << < ((range / 2) + threads - 1) / threads, threads >> > (c, range);
+	evenSort << < ((range / 2) + THREADS - 1) / THREADS, THREADS >> > (c, range);
 }
 
 
@@ -88,5 +115,5 @@ __global__ void oddSort(int *c, int arraySize) {
 }
 void oddKernel(int * c, int range)
 {
-	oddSort << < ((range / 2) - 1 + threads - 1) / threads, threads >> > (c, range);
+	oddSort << < ((range / 2) - 1 + THREADS - 1) / THREADS, THREADS >> > (c, range);
 }

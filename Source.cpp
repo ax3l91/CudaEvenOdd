@@ -6,17 +6,19 @@
 
 
 int range;
-ArrayClass *matrix_ptr,*cuda_ptr,*cpu_ptr;
+ArrayClass *matrix_ptr,*cuda_ptr,*cpu_ptr, *thrust_ptr;
 int* cudaMat_ptr, *cpuMat_ptr,*thrustMat_ptr;
 char menu = 'a';
 
 
 
 int main() {
+	initializeCuda();
+
 	systemLog("Please input the range of a one Dimensional Matrix");
 	std::cin >> range;
 
-	matrix_ptr = new ArrayClass(range, true);
+	matrix_ptr = new ArrayClass(range, false);
 	
 	systemLog("Random matrix generated:");
 	int* matrix = (*matrix_ptr).getArray();
@@ -41,9 +43,11 @@ int main() {
 
 	cuda_ptr = new ArrayClass(cudaMat_ptr, range);
 	cpu_ptr = new ArrayClass(cpuMat_ptr, range);
+	thrust_ptr = new ArrayClass(thrustMat_ptr, range);
 
 	cuda_ptr->checkSort("GPU");
 	cpu_ptr->checkSort("CPU");
+	thrust_ptr->checkSort("THRUST");
 
 	//(*matrix_ptr).printArray();
 	//(*cuda_ptr).printArray();
@@ -55,6 +59,7 @@ int main() {
 		systemLog("Press q to exit and release memory");
 		std::cin >> menu;
 	}
+	exitCuda();
 
 	delete matrix_ptr;
 	delete cuda_ptr;
