@@ -6,10 +6,13 @@
 class ArrayClass
 {
 public:
+	//Constructors
 	ArrayClass(int range,bool random);
 	ArrayClass(int range);
 	ArrayClass(int* mat,int range);
+	//Destructor
 	~ArrayClass();
+	//Public functions provide an API to private ones
 	void printArray();
 	int* getArray();
 	void checkSort();
