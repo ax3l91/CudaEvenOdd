@@ -48,7 +48,7 @@ void ArrayClass::checkSort() {
 	for (int i = 0; i < range-1; i++) {
 
 		if (mat[i] > mat[i + 1]) {
-			std::cout << "error in: " << i << "with values" << mat[i] << "and" << mat[i + 1] << std::endl;
+			printf("Error in m[%d] = %d and m[%d] = %d \n", i, mat[i], i + 1, mat[i + 1]);
 			error++;
 		}
 	}
@@ -60,7 +60,7 @@ void ArrayClass::checkSort(std::string str) {
 	for (int i = 0; i < range - 1; i++) {
 
 		if (mat[i] > mat[i + 1]) {
-			std::cout << "error in: " << i << "with values" << mat[i] << "and" << mat[i + 1] << std::endl;
+			printf("Error in m[%d] = %d and m[%d] = %d \n", i, mat[i], i + 1, mat[i + 1]);
 			error++;
 		}
 	}
@@ -108,6 +108,7 @@ void ArrayClass::populateArray(int mat[], int range, bool random) {
 		}
 		else
 		{
+			//Make a matrix that is ascending to test every iteration
 			mat[range- i -1] = 2*i + 10;
 		}
 	}
@@ -147,6 +148,7 @@ void thread1(unsigned int maxThreads ,int threadId,ArrayClass ac) {
 	ac.task(maxThreads, threadId);
 }
 
+//TODO: Parallelize exploiting all CPU cores.
 template <typename T>
 T* ArrayClass::evenodd_sort(T mat[]) {
 	//How many cores the systems has
@@ -167,19 +169,36 @@ T* ArrayClass::evenodd_sort(T mat[]) {
 	matrixCpy(mat, matOut);
 
 	//Sequencial Single-Threaded sorting.
-	for (int j = 0; j < range/2; j++) {
-		for (int i = 0; i < range ; i += 2) {
-			if (matOut[i] > matOut[i + 1]) {
-				swap(matOut, i);
+	//Matrix has Even number of Elements
+	if (range % 2 == 0) {
+		for (int j = 0; j < range / 2; j++) {
+			for (int i = 0; i < range; i += 2) {
+				if (matOut[i] > matOut[i + 1]) {
+					swap(matOut, i);
+				}
 			}
-		}
-		for (int i = 1; i < range - 1; i += 2) {
-			if (matOut[i] > matOut[i + 1]) {
-				swap(matOut, i);
+			for (int i = 1; i < range - 1; i += 2) {
+				if (matOut[i] > matOut[i + 1]) {
+					swap(matOut, i);
+				}
 			}
 		}
 	}
-
+	//Matrix has Odd number of Elements
+	else {
+		for (int j = 0; j < range / 2; j++) {
+			for (int i = 0; i < range -1; i += 2) {
+				if (matOut[i] > matOut[i + 1]) {
+					swap(matOut, i);
+				}
+			}
+			for (int i = 1; i < range - 1; i += 2) {
+				if (matOut[i] > matOut[i + 1]) {
+					swap(matOut, i);
+				}
+			}
+		}
+	}
 	return matOut;
 };
 
@@ -188,10 +207,10 @@ int* ArrayClass::cudaSort(int a[], const int arraySize)
 	auto c = new int[arraySize];
 	for (int i = 0; i < arraySize; i++) c[i] = a[i];
 
-	// Add vectors in parallel.
+	//Sort using Cuda, pass the matrix and range
 	cudaError_t cudaStatus = sortWithCuda(c, arraySize);
 	if (cudaStatus != cudaSuccess) {
-		fprintf(stderr, "addWithCuda failed!");
+		fprintf(stderr, "addWithCuda failed! \n");
 	}
 
 	return c;
@@ -232,9 +251,9 @@ cudaError_t ArrayClass::sortWithCuda(int *c, unsigned int size)
 	}
 	endTiming(true, "GPU buffer Allocation ");
 
-	// Launch a kernel on the GPU with one thread for each element.
-	//sortKernel<<<1, thread>>>(dev_c,size);
+	//Check if range is Even or Odd
 	if (size % 2 == 0) {
+		//Matrix has an even number of elements
 		for (int i = 0; i < size / 2; i++) {
 			evenKernel(dev_c, size);
 			oddKernel(dev_c, size);
@@ -242,15 +261,13 @@ cudaError_t ArrayClass::sortWithCuda(int *c, unsigned int size)
 	}
 	else
 	{
-		printf("range is %d \n", size);
+		//Matrix has an odd number of elements
 		for (int i = 0; i < (int) floorf(size / 2) + 1; i++) {
 			oddKernel2(dev_c, size,false);
 			oddKernel2(dev_c, size, true);
 		}
 	}
 	endTiming(true, "Kernel Work ");
-
-	//sharedKernel(dev_c, size);
 
 	// Check for any errors launching the kernel
 	cudaStatus = cudaGetLastError();
@@ -259,8 +276,8 @@ cudaError_t ArrayClass::sortWithCuda(int *c, unsigned int size)
 		goto Error;
 	}
 
-	// cudaDeviceSynchronize waits for the kernel to finish, and returns
-	// any errors encountered during the launch.
+	/* cudaDeviceSynchronize waits for the kernel to finish, and returns
+	any errors encountered during the launch.*/
 	cudaStatus = cudaDeviceSynchronize();
 	if (cudaStatus != cudaSuccess) {
 		fprintf(stderr, "cudaDeviceSynchronize returned error code %d after launching Kernel!\n", cudaStatus);

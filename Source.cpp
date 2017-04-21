@@ -1,5 +1,4 @@
 #include <iostream>
-
 #include "definitions.h"
 #include "ArrayClass.h"
 #include "Utils.h"
@@ -13,6 +12,9 @@ char menu = 'a';
 
 
 int main() {
+	//This will attempt to open a connection with the Cuda Enabled GPU
+	//Must be called in the beginning because it creates a big (~2sec)
+	//overhead when calling the first cuda command
 	initializeCuda();
 
 	systemLog("Please input the range of a one Dimensional Matrix");
