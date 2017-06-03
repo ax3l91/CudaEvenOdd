@@ -16,9 +16,10 @@ public:
 	void printArray();
 	int* getArray();
 	void checkSort();
-	void checkSort(std::string type);
+	void checkSort(bool verbose,std::string type);
 	void sort(int TYPE);
-	void sort(int TYPE, int **mat_ptr);
+	//void sort(int TYPE, int **mat_ptr);
+	void sort(bool verbose,int TYPE, int **mat_ptr);
 	int* sort_ptr(int TYPE);
 	void task(unsigned int maxThreads, int threadId);
 
@@ -31,9 +32,9 @@ private:
 	void printMatrix(int mat[], int range);
 	void populateArray(int mat[], int range, bool random);
 	void matrixCpy(int in[], int out[]);
-	int* cudaSort(int mat[],const int range);
-	int* cudaSort(int mat[], const int range,bool useThrust);
-	cudaError_t sortWithCuda(int *mat,unsigned int range);
+	int* cudaSort(bool verbose,int mat[],const int range);
+	int* cudaSort(bool verbose,int mat[], const int range,bool useThrust);
+	cudaError_t sortWithCuda(bool verbose,int *mat,unsigned int range);
 
 
 	//object properties

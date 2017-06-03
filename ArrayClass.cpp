@@ -54,7 +54,7 @@ void ArrayClass::checkSort() {
 	}
 	std::cout << "check sort has found " << error << " errors in the matrix" << std::endl;
 }
-void ArrayClass::checkSort(std::string str) {
+void ArrayClass::checkSort(bool verbose,std::string str) {
 	int error = 0;
 
 	for (int i = 0; i < range - 1; i++) {
@@ -64,7 +64,8 @@ void ArrayClass::checkSort(std::string str) {
 			error++;
 		}
 	}
-	std::cout << str << " check sort has found " << error << " errors in the matrix!" << std::endl;
+	if(verbose)
+		std::cout << str << " check sort has found " << error << " errors in the matrix!" << std::endl;
 }
 
 void ArrayClass::sort(int TYPE)
@@ -76,20 +77,20 @@ int * ArrayClass::sort_ptr(int TYPE)
 	return nullptr;
 }
 
-void ArrayClass::sort(int TYPE, int **mat_ptr)
+void ArrayClass::sort(bool verbose,int TYPE, int **mat_ptr)
 {
 	/*Find out What kind of Sort to Run and return a Pointer to 
 	a new sorted Matrix*/
 	switch (TYPE)
 	{
 	case GPU:
-		*mat_ptr = cudaSort(mat, range);
+		*mat_ptr = cudaSort(verbose, mat, range);
 		break;
 	case CPU:
 		*mat_ptr = evenodd_sort(mat);
 		break;
 	case THRUST:
-		*mat_ptr = cudaSort(mat, range, true);
+		*mat_ptr = cudaSort(verbose,mat, range, true);
 		break;
 	default:
 		cout << "wrong type" << endl;
@@ -154,7 +155,6 @@ T* ArrayClass::evenodd_sort(T mat[]) {
 	//How many cores the systems has
 	unsigned int concurentThreadsSupported = std::thread::hardware_concurrency();
 	std::string s = std::to_string(concurentThreadsSupported);
-	systemLog(s +" Threads in this system");
 
 	//FAIL way. Needs something better.
 	/*for (int itNum = 0; itNum < range / 2; itNum++) {
@@ -202,13 +202,13 @@ T* ArrayClass::evenodd_sort(T mat[]) {
 	return matOut;
 };
 
-int* ArrayClass::cudaSort(int a[], const int arraySize)
+int* ArrayClass::cudaSort(bool verbose,int a[], const int arraySize)
 {
 	auto c = new int[arraySize];
 	for (int i = 0; i < arraySize; i++) c[i] = a[i];
 
 	//Sort using Cuda, pass the matrix and range
-	cudaError_t cudaStatus = sortWithCuda(c, arraySize);
+	cudaError_t cudaStatus = sortWithCuda(verbose,c, arraySize);
 	if (cudaStatus != cudaSuccess) {
 		fprintf(stderr, "addWithCuda failed! \n");
 	}
@@ -217,10 +217,10 @@ int* ArrayClass::cudaSort(int a[], const int arraySize)
 }
 
 
-int * ArrayClass::cudaSort(int mat[], const int range, bool useThrust)
+int * ArrayClass::cudaSort(bool verbose,int mat[], const int range, bool useThrust)
 {
 	if (!useThrust)
-		return cudaSort(mat, range);
+		return cudaSort(verbose,mat, range);
 	else
 	{
 		thrust::sort(mat, mat + range);
@@ -231,7 +231,7 @@ int * ArrayClass::cudaSort(int mat[], const int range, bool useThrust)
 
 
 // Helper function for using CUDA to add vectors in parallel.
-cudaError_t ArrayClass::sortWithCuda(int *c, unsigned int size)
+cudaError_t ArrayClass::sortWithCuda(bool verbose,int *c, unsigned int size)
 {
 	int *dev_c = 0;
 	cudaError_t cudaStatus;
@@ -249,7 +249,7 @@ cudaError_t ArrayClass::sortWithCuda(int *c, unsigned int size)
 		fprintf(stderr, "cudaMemcpy failed!");
 		goto Error;
 	}
-	endTiming(true, "GPU buffer Allocation ");
+	endTiming(verbose, "GPU buffer Allocation ");
 
 	//Check if range is Even or Odd
 	if (size % 2 == 0) {
@@ -267,7 +267,7 @@ cudaError_t ArrayClass::sortWithCuda(int *c, unsigned int size)
 			oddKernel2(dev_c, size, true);
 		}
 	}
-	endTiming(true, "Kernel Work ");
+	endTiming(verbose, "Kernel Work ");
 
 	// Check for any errors launching the kernel
 	cudaStatus = cudaGetLastError();
@@ -283,7 +283,7 @@ cudaError_t ArrayClass::sortWithCuda(int *c, unsigned int size)
 		fprintf(stderr, "cudaDeviceSynchronize returned error code %d after launching Kernel!\n", cudaStatus);
 		goto Error;
 	}
-	endTiming(true, "Device Synchronize ");
+	endTiming(verbose, "Device Synchronize ");
 
 
 	// Copy output vector from GPU buffer to host memory.
@@ -292,7 +292,7 @@ cudaError_t ArrayClass::sortWithCuda(int *c, unsigned int size)
 		fprintf(stderr, "cudaMemcpy failed!");
 		goto Error;
 	}
-	endTiming(true, "Copy from Device to Host ");
+	endTiming(verbose, "Copy from Device to Host ");
 
 Error:
 	cudaFree(dev_c);
